@@ -1,0 +1,8 @@
+pandas
+numpy
+duckdb
+pyarrow
+scikit-learn
+pytest
+matplotlib
+faker
