@@ -1,5 +1,5 @@
 {
-  "run_timestamp": "2026-05-11T05:06:29.325059+00:00",
+  "run_timestamp": "2026-05-11T07:05:11.673597+00:00",
   "feature_table": "/Users/aparnashenoy/Downloads/port-operations-analytics-lakehouse/data/gold/ml_vessel_delay_features.parquet",
   "model_features": [
     "terminal_id_encoded",
