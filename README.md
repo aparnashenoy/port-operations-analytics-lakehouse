@@ -215,7 +215,12 @@ The outlier fence uses the **Tukey IQR method** (`Q3 + 1.5×IQR`, minimum 24-hou
 
 ## SQL Analytics
 
-Five standalone DuckDB SQL files implement the full pipeline in pure SQL, independently of the Python code. Each file is runnable without any server setup; DuckDB reads Parquet natively in-process.
+Five standalone DuckDB SQL files implement the full pipeline in pure SQL, independently of the Python code. Each file is runnable without any server setup; DuckDB reads Parquet natively in-process. Use `src/run_sql.py` to execute any file and see formatted results:
+
+```bash
+python src/run_sql.py sql/05_business_analysis_queries.sql --limit 10
+python src/run_sql.py --all   # run all five files in sequence
+```
 
 **Senior SQL patterns demonstrated:**
 
@@ -323,7 +328,8 @@ python src/gold_kpis.py              # Silver → Gold KPIs
 python src/feature_engineering.py   # Silver + Gold → ML features
 python src/train_model.py            # Train models, save metrics
 python src/data_quality_checks.py   # Run DQ suite, emit report
-pytest tests/ -v                     # 106 tests
+python src/run_sql.py --all          # Execute all 5 SQL showcase files
+pytest tests/ -v                     # 116 tests
 ```
 
 Each script is independently runnable and reads only from the layer below it. Outputs land in `outputs/` and `models/`.
@@ -355,7 +361,7 @@ Each script is independently runnable and reads only from the layer below it. Ou
 - OrdinalEncoder with fixed category lists for stable cross-run mappings
 
 **Software engineering**
-- 106 pytest tests covering schema contracts, flag logic, grain uniqueness, and leakage
+- 116 pytest tests covering schema contracts, flag logic, grain uniqueness, and leakage
 - Centralised configuration in `config.py` — no hardcoded paths
 - Modular pipeline scripts, each independently runnable
 - Production-grade edge case handling (empty groups, tz-aware timestamps, dtype stability)
@@ -364,7 +370,7 @@ Each script is independently runnable and reads only from the layer below it. Ou
 
 ## Interview Talking Points
 
-**30 seconds:** A medallion lakehouse for port operations that tracks 2,000 vessel calls across five terminals, enforces 14 data quality checks, and predicts pre-arrival delays using point-in-time correct features. The pipeline runs end-to-end in under a minute with 106 automated tests.
+**30 seconds:** A medallion lakehouse for port operations that tracks 2,000 vessel calls across five terminals, enforces 14 data quality checks, and predicts pre-arrival delays using point-in-time correct features. The pipeline runs end-to-end in under a minute with 116 automated tests.
 
 **2 minutes:** The interesting engineering is in two places. First, the flag-not-drop quality framework: rather than silently removing dirty records, every quality issue gets a boolean flag so analysts can measure the scale of each problem and trace it to its source. The crane overlap rate is 37.7% — that number is visible and actionable, not hidden. Second, the PIT correctness constraint on the ML features: rolling history features are computed using `history.atd < current.eta` with a strict inequality, and leakage columns are excluded via an allowlist enforced by both production code and automated tests. Adding a leakage column breaks CI.
 

@@ -10,12 +10,14 @@ entire suite.
 Run: pytest tests/test_data_quality.py
 """
 
+import json
 import pandas as pd
 import pytest
 from pathlib import Path
 
-SILVER_DIR = Path("data/silver")
-GOLD_DIR   = Path("data/gold")
+SILVER_DIR  = Path("data/silver")
+GOLD_DIR    = Path("data/gold")
+OUTPUTS_DIR = Path("outputs")
 
 
 # ---------------------------------------------------------------------------
@@ -248,3 +250,73 @@ def test_leakage_column_absent_from_ml_feature_table(col, ml_features):
         f"Leakage column '{col}' found in the ML feature table. "
         "It is a post-arrival actual and must be excluded from the feature set."
     )
+
+
+# ---------------------------------------------------------------------------
+# DQ report — regression guard
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def dq_report() -> dict:
+    """
+    Load the structured DQ report produced by data_quality_checks.py.
+
+    The report is the authoritative record of pipeline health.  These tests
+    lock in the expected check outcomes so that any new FAIL introduced by a
+    code change is caught immediately rather than discovered in production.
+    """
+    path = OUTPUTS_DIR / "data_quality_report.json"
+    if not path.exists():
+        pytest.skip(f"DQ report not found at {path} — run data_quality_checks.py first")
+    with open(path) as f:
+        return json.load(f)
+
+
+def test_dq_report_has_expected_check_count(dq_report):
+    """The report must contain exactly 14 checks — one per defined rule."""
+    n = dq_report["summary"]["total_checks"]
+    assert n == 14, f"Expected 14 DQ checks, found {n}"
+
+
+def test_dq_report_exactly_one_fail(dq_report):
+    """
+    Exactly one check should be in FAIL status: crane_overlaps (37.7%,
+    above the 15% threshold).  This failure is intentional — it represents
+    a real operational failure mode injected into the synthetic data to
+    demonstrate that the framework correctly classifies it.
+
+    A second FAIL here means a new regression was introduced.
+    """
+    failed = [k for k, v in dq_report["checks"].items() if v["status"] == "FAIL"]
+    assert failed == ["crane_overlaps"], (
+        f"Expected exactly ['crane_overlaps'] to fail. Got: {failed}"
+    )
+
+
+def test_dq_report_silver_deduplication_passes(dq_report):
+    """Silver deduplication must leave zero duplicate vessel_call_ids."""
+    status = dq_report["checks"]["silver_duplicate_vessel_calls"]["status"]
+    assert status == "PASS", f"silver_duplicate_vessel_calls is {status}, expected PASS"
+
+
+def test_dq_report_gold_grain_checks_pass(dq_report):
+    """Both gold grain checks (call summary and terminal KPI) must pass."""
+    for check in ("gold_call_summary_grain", "gold_terminal_kpi_grain"):
+        status = dq_report["checks"][check]["status"]
+        assert status == "PASS", f"{check} is {status}, expected PASS"
+
+
+def test_dq_report_ml_feature_nulls_pass(dq_report):
+    """ML feature null-rate check must pass (all 14 feature columns clean)."""
+    status = dq_report["checks"]["ml_feature_missing_values"]["status"]
+    assert status == "PASS", f"ml_feature_missing_values is {status}, expected PASS"
+
+
+def test_dq_report_cross_layer_counts_pass(dq_report):
+    """
+    ML feature table must have fewer distinct call IDs than silver.
+    A ML > silver count would indicate fabricated rows — a data integrity failure.
+    """
+    status = dq_report["checks"]["cross_layer_call_id_counts"]["status"]
+    assert status == "PASS", f"cross_layer_call_id_counts is {status}, expected PASS"

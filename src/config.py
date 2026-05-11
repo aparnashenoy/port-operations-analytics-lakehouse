@@ -35,14 +35,9 @@ DUCKDB_PATH = GOLD_DIR / "port_analytics.duckdb"
 # Data generation parameters
 # ---------------------------------------------------------------------------
 
-SYNTHETIC_SEED = int(os.getenv("SYNTHETIC_SEED", "42"))
-NUM_VESSELS = int(os.getenv("NUM_VESSELS", "120"))
-NUM_BERTHS = int(os.getenv("NUM_BERTHS", "18"))
+SYNTHETIC_SEED   = int(os.getenv("SYNTHETIC_SEED",   "42"))
 SIMULATION_START = os.getenv("SIMULATION_START", "2023-01-01")
-SIMULATION_END = os.getenv("SIMULATION_END", "2024-12-31")
-
-# Approximate port calls generated across the simulation window
-TARGET_PORT_CALLS = int(os.getenv("TARGET_PORT_CALLS", "50000"))
+SIMULATION_END   = os.getenv("SIMULATION_END",   "2024-12-31")
 
 # ---------------------------------------------------------------------------
 # Pipeline behaviour
@@ -63,8 +58,7 @@ DELAY_THRESHOLD_HOURS = float(os.getenv("DELAY_THRESHOLD_HOURS", "2.0"))
 # ML configuration
 # ---------------------------------------------------------------------------
 
-ML_TEST_SIZE = float(os.getenv("ML_TEST_SIZE", "0.2"))
-ML_CV_FOLDS = int(os.getenv("ML_CV_FOLDS", "5"))
+ML_TEST_SIZE    = float(os.getenv("ML_TEST_SIZE", "0.2"))
 ML_RANDOM_STATE = SYNTHETIC_SEED
 
 MODELS_DIR   = PROJECT_ROOT / "models"

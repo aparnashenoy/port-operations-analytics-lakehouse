@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-PYTHON        := python
+PYTHON        := python3
 
 # Sentinel files track whether each stage has run so Make can skip up-to-date stages.
 BRONZE_SENTINEL  := data/bronze/.done
@@ -8,7 +8,7 @@ GOLD_SENTINEL    := data/gold/.done
 FEATURE_SENTINEL := data/gold/ml_vessel_delay_features.parquet
 MODEL_SENTINEL   := models/random_forest.joblib
 
-.PHONY: help install generate-data bronze silver gold features train quality test run-all clean
+.PHONY: help install generate-data bronze silver gold features train quality sql test run-all clean
 
 help:
 	@echo ""
@@ -22,7 +22,8 @@ help:
 	@echo "  make features       Build PIT-correct ML feature table"
 	@echo "  make train          Train models and write metrics/importance"
 	@echo "  make quality        Run 14-check data quality suite"
-	@echo "  make test           Run pytest test suite (106 tests)"
+	@echo "  make sql            Execute all 5 SQL showcase files via DuckDB"
+	@echo "  make test           Run pytest test suite"
 	@echo "  make run-all        Full pipeline from scratch"
 	@echo "  make clean          Remove all generated data and outputs"
 	@echo ""
@@ -75,6 +76,13 @@ $(MODEL_SENTINEL): $(FEATURE_SENTINEL)
 quality: $(SILVER_SENTINEL) $(GOLD_SENTINEL) $(FEATURE_SENTINEL)
 	$(PYTHON) src/data_quality_checks.py
 
+sql: $(GOLD_SENTINEL) $(SILVER_SENTINEL)
+	$(PYTHON) src/run_sql.py sql/01_bronze_to_silver.sql
+	$(PYTHON) src/run_sql.py sql/02_gold_terminal_kpis.sql
+	$(PYTHON) src/run_sql.py sql/03_data_quality_checks.sql
+	$(PYTHON) src/run_sql.py sql/04_ml_features.sql
+	$(PYTHON) src/run_sql.py sql/05_business_analysis_queries.sql
+
 test:
 	pytest tests/ -v
 
@@ -82,7 +90,7 @@ test:
 # Composite targets
 # ----------------------------------------------------------------------------
 
-run-all: install generate-data bronze silver gold features train quality test
+run-all: install generate-data bronze silver gold features train quality sql test
 	@echo ""
 	@echo "Pipeline complete."
 	@echo "  outputs/model_metrics.json      — model evaluation"
