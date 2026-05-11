@@ -248,6 +248,10 @@ def detect_crane_overlaps(df: pd.DataFrame) -> pd.Series:
     df_check = df.loc[valid, ["crane_id", "actual_start", "actual_end"]].copy()
     df_check = df_check.sort_values(["crane_id", "actual_start"])
 
+    # No valid assignments remain after filtering — no overlaps possible.
+    if df_check.empty:
+        return pd.Series(False, index=df.index)
+
     # Running max of actual_end seen so far for each crane, shifted so the
     # current row compares against all *prior* assignments, not itself.
     df_check["_prior_max_end"] = df_check.groupby("crane_id")["actual_end"].transform(
