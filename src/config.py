@@ -67,7 +67,8 @@ ML_TEST_SIZE = float(os.getenv("ML_TEST_SIZE", "0.2"))
 ML_CV_FOLDS = int(os.getenv("ML_CV_FOLDS", "5"))
 ML_RANDOM_STATE = SYNTHETIC_SEED
 
-MODELS_DIR = PROJECT_ROOT / "models"
+MODELS_DIR   = PROJECT_ROOT / "models"
+OUTPUTS_DIR  = PROJECT_ROOT / "outputs"
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -82,5 +83,5 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
 def ensure_dirs() -> None:
     """Create all data layer directories if they do not already exist."""
-    for directory in (RAW_DIR, BRONZE_DIR, SILVER_DIR, GOLD_DIR, QUARANTINE_DIR, MODELS_DIR):
+    for directory in (RAW_DIR, BRONZE_DIR, SILVER_DIR, GOLD_DIR, QUARANTINE_DIR, MODELS_DIR, OUTPUTS_DIR):
         directory.mkdir(parents=True, exist_ok=True)
