@@ -1,0 +1,249 @@
+{
+  "run_timestamp": "2026-05-11T05:17:47.700553+00:00",
+  "overall_status": "FAIL",
+  "summary": {
+    "total_checks": 14,
+    "passed": 12,
+    "warned": 1,
+    "failed": 1
+  },
+  "checks": {
+    "silver_duplicate_vessel_calls": {
+      "status": "PASS",
+      "description": "Duplicate vessel_call_id values in silver after deduplication",
+      "value": 0,
+      "threshold": 0,
+      "detail": null
+    },
+    "silver_missing_eta": {
+      "status": "PASS",
+      "description": "Vessel calls where ETA is NULL (cannot be used as prediction targets)",
+      "value": {
+        "count": 30,
+        "rate_pct": 1.5
+      },
+      "threshold": {
+        "warn_pct": 5.0,
+        "fail_pct": 15.0
+      },
+      "detail": null
+    },
+    "silver_missing_ata": {
+      "status": "PASS",
+      "description": "Vessel calls where ATA is NULL (in-progress or missing arrival record)",
+      "value": {
+        "count": 20,
+        "rate_pct": 1.0
+      },
+      "threshold": {
+        "warn_pct": 10.0,
+        "fail_pct": 25.0
+      },
+      "detail": null
+    },
+    "silver_invalid_arrival_sequence": {
+      "status": "WARN",
+      "description": "Calls where ATA is recorded after ATD (physically impossible sequence)",
+      "value": 10,
+      "threshold": 0,
+      "detail": null
+    },
+    "silver_invalid_departure_sequence": {
+      "status": "PASS",
+      "description": "Calls where ETD is scheduled before ETA (impossible planned sequence)",
+      "value": 0,
+      "threshold": 0,
+      "detail": null
+    },
+    "silver_large_delay_outliers": {
+      "status": "PASS",
+      "description": "Calls where delay_hours exceeds the Tukey upper fence (min 24 h)",
+      "value": {
+        "count": 8,
+        "rate_pct": 0.4
+      },
+      "threshold": {
+        "warn_pct": 1.0,
+        "fail_pct": 5.0
+      },
+      "detail": null
+    },
+    "crane_end_before_start": {
+      "status": "PASS",
+      "description": "Crane assignments where actual_end is earlier than actual_start",
+      "value": {
+        "count": 148,
+        "rate_pct": 2.0
+      },
+      "threshold": {
+        "warn_pct": 2.0,
+        "fail_pct": 10.0
+      },
+      "detail": null
+    },
+    "crane_overlaps": {
+      "status": "FAIL",
+      "description": "Crane assignments that temporally overlap an earlier assignment for the same crane",
+      "value": {
+        "count": 2796,
+        "rate_pct": 37.71
+      },
+      "threshold": {
+        "warn_pct": 5.0,
+        "fail_pct": 15.0
+      },
+      "detail": {
+        "affected_cranes": 36
+      }
+    },
+    "orphan_crane_assignments": {
+      "status": "PASS",
+      "description": "Crane assignments referencing a vessel_call_id absent from silver vessel_calls",
+      "value": {
+        "count": 0,
+        "rate_pct": 0.0
+      },
+      "threshold": 0,
+      "detail": null
+    },
+    "gold_call_summary_grain": {
+      "status": "PASS",
+      "description": "Gold vessel_call_summary grain: one row per vessel_call_id",
+      "value": {
+        "total_rows": 2000,
+        "duplicate_rows": 0
+      },
+      "threshold": 0,
+      "detail": null
+    },
+    "gold_terminal_kpi_grain": {
+      "status": "PASS",
+      "description": "Gold daily_terminal_kpis grain: one row per (terminal_id, operation_date)",
+      "value": {
+        "total_rows": 1480,
+        "duplicate_rows": 0
+      },
+      "threshold": 0,
+      "detail": null
+    },
+    "ml_feature_missing_values": {
+      "status": "PASS",
+      "description": "Null rate per feature column in the ML feature table",
+      "value": {
+        "columns_checked": 14,
+        "columns_clean": 14,
+        "columns_with_nulls": 0
+      },
+      "threshold": {
+        "static_features_fail_pct": 5.0,
+        "history_features_fail_pct": 50.0
+      },
+      "detail": {
+        "per_column": {
+          "terminal_id_encoded": {
+            "null_count": 0,
+            "null_rate_pct": 0.0,
+            "status": "PASS"
+          },
+          "service_code_encoded": {
+            "null_count": 0,
+            "null_rate_pct": 0.0,
+            "status": "PASS"
+          },
+          "vessel_capacity_teu": {
+            "null_count": 0,
+            "null_rate_pct": 0.0,
+            "status": "PASS"
+          },
+          "planned_moves": {
+            "null_count": 0,
+            "null_rate_pct": 0.0,
+            "status": "PASS"
+          },
+          "planned_crane_count": {
+            "null_count": 0,
+            "null_rate_pct": 0.0,
+            "status": "PASS"
+          },
+          "planned_crane_hours": {
+            "null_count": 0,
+            "null_rate_pct": 0.0,
+            "status": "PASS"
+          },
+          "day_of_week": {
+            "null_count": 0,
+            "null_rate_pct": 0.0,
+            "status": "PASS"
+          },
+          "month": {
+            "null_count": 0,
+            "null_rate_pct": 0.0,
+            "status": "PASS"
+          },
+          "is_weekend": {
+            "null_count": 0,
+            "null_rate_pct": 0.0,
+            "status": "PASS"
+          },
+          "storm_flag": {
+            "null_count": 0,
+            "null_rate_pct": 0.0,
+            "status": "PASS"
+          },
+          "terminal_congestion_score": {
+            "null_count": 0,
+            "null_rate_pct": 0.0,
+            "status": "PASS"
+          },
+          "avg_previous_10_terminal_delays": {
+            "null_count": 10,
+            "null_rate_pct": 0.51,
+            "status": "PASS"
+          },
+          "avg_previous_10_service_delays": {
+            "null_count": 16,
+            "null_rate_pct": 0.82,
+            "status": "PASS"
+          },
+          "previous_vessel_delay": {
+            "null_count": 100,
+            "null_rate_pct": 5.1,
+            "status": "PASS"
+          }
+        }
+      }
+    },
+    "ml_target_distribution": {
+      "status": "PASS",
+      "description": "Binary target distribution in the ML feature table",
+      "value": {
+        "total_rows": 1960,
+        "labeled_rows": 1941,
+        "unlabeled_rows": 19,
+        "positive_count": 516,
+        "negative_count": 1425,
+        "positive_rate_pct": 26.58
+      },
+      "threshold": {
+        "warn_if_below_pct": 5.0,
+        "warn_if_above_pct": 60.0,
+        "fail_if_above_pct": 95.0
+      },
+      "detail": null
+    },
+    "cross_layer_call_id_counts": {
+      "status": "PASS",
+      "description": "Distinct vessel_call_id counts across silver, gold summary, and ML feature layers",
+      "value": {
+        "silver_distinct_ids": 2000,
+        "gold_summary_ids": 2000,
+        "ml_feature_ids": 1960
+      },
+      "threshold": {
+        "gold_should_equal_silver": true,
+        "ml_should_be_subset_of_silver": true
+      },
+      "detail": null
+    }
+  }
+}
